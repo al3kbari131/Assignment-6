@@ -1,0 +1,186 @@
+//  Assignment 6 (Binary Search Tree)
+#include <iostream>
+using namespace std;
+
+struct Node
+{
+	int data;
+	Node *leftNode, *rightNode;
+};
+
+class BST
+{
+
+public :
+	// Insert function.
+	Node* InsertData(Node* root, int value)
+      {
+            if(root==NULL)
+            {
+                  Node *newNode = new Node;
+                  newNode->data = value;
+                  newNode->leftNode = NULL;
+                  newNode->rightNode = NULL;
+                  return newNode;
+            }
+            else
+            {
+                  //if value is greater than the root, then new node will be on right
+                  if(root->data<value)
+                        root->rightNode = InsertData(root->rightNode, value);
+                  //if value is less than or equal to root, then new node will be on left
+                  else
+                        root->leftNode = InsertData(root->leftNode, value);
+            }
+            return root;
+      }
+
+      // in-order traversal.
+	void inorderTraversal(Node *root)
+      {
+            if(root==NULL)
+                  return;
+            inorderTraversal(root->leftNode);
+            cout << root->data << ", ";
+            inorderTraversal(root->rightNode);
+      }
+
+      //pre-order traversal
+      void preorderTraversal(Node *root)
+      {
+            if(root==NULL)
+                  return;
+            cout << root->data << ", ";
+            preorderTraversal(root->leftNode);
+            preorderTraversal(root->rightNode);
+      }
+
+       //post-order traversal
+      void postorderTraversal(Node *root)
+      {
+            if(root==NULL)
+                  return;
+            
+            preorderTraversal(root->leftNode);
+            preorderTraversal(root->rightNode);
+            cout << root->data << ", ";
+      }
+
+      
+
+      //removes a value and then picks an appropirate replacement node
+      void findNode(Node* &current, int value, Node* &parent)  
+      {  
+            while (current != NULL && current->data != value)  
+            {  
+                  parent = current;  
+                  if (value < current->data)
+                        current = current->leftNode;
+                  else  
+                        current = current->rightNode;  
+             }  
+      }  
+
+      void remove(Node* &root, int value)
+      {
+            Node* parent = NULL;  
+            Node* current = root;  
+            
+            findNode(current, value, parent);  
+            if (current == NULL)  
+                  return;  
+            
+            //to delete a node with no children
+            if (current->leftNode== NULL && current->rightNode == NULL)  
+            {  
+                  //remove the connection from parent node
+                  if (current != root)  
+                  {  
+                        if (parent->leftNode == current)  
+                              parent->leftNode = NULL;  
+                        else  
+                              parent->rightNode = NULL;  
+                  }  
+                  else  
+                        root = NULL;  
+            
+                  free(current);       
+            }  
+
+            //the node has two children, find the in order predecessor node
+            else if (current->leftNode && current->rightNode)  
+            {  
+                  Node* successorNode  = findSuccessorNode(current->rightNode);  
+                  int tempValue = successorNode->data;  
+                  remove(root, successorNode->data);  
+                  current->data = tempValue;  
+            }  
+            
+            //if the node has only one children
+            else  
+            {
+                  Node *child;
+                  if (current->leftNode)
+                        child = current->leftNode;
+                  else
+                        child = current->rightNode;
+
+                  if (current != root)  
+                  {  
+                        if (current == parent->leftNode)  
+                        parent->leftNode = child;  
+                        else  
+                        parent->rightNode = child;  
+                  }  
+            
+                  else  
+                        root = child;  
+                  free(current);  
+            }  
+      }  
+
+
+      Node* findSuccessorNode(Node* current)  
+      {  
+            while(current->leftNode != NULL)
+            {  
+                  current= current->leftNode;  
+            }  
+            return current;
+      }  
+};
+
+// Driver code
+int main()
+{
+
+      Node *current = NULL;
+      BST b;
+      Node *root = NULL;
+      root = b.InsertData(root, 5);
+      b.InsertData(root, 3);
+	b.InsertData(root, 6);
+	b.InsertData(root, 4);
+	b.InsertData(root, 2);
+	b.InsertData(root, 10);
+	b.InsertData(root, 30);
+    	b.InsertData(root, 25);
+
+      cout << "In-order Traversal: ";
+      b.inorderTraversal(root);
+
+      cout << endl<< "Removing 25 from the list..." << endl;
+      b.remove(root, 25);
+
+      cout << "In-order Traversal: ";
+      b.inorderTraversal(root);
+
+      cout << endl<< "x-------------Bonus Points---------------x";
+      cout << endl<< "Pre-order Traversal: ";
+      b.preorderTraversal(root);
+
+      cout << endl<< "Post-order Traversal: ";
+      b.postorderTraversal(root);
+      return 0;
+}
+
